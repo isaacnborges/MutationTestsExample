@@ -1,0 +1,14 @@
+-dotnet test --verbosity minimal --collect:"XPlat Code Coverage"
+
+open folder with Guid inside TestResults
+-reportgenerator "-reports:coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
+
+open coveragereport folde
+open index.html file
+
+
+-Run the mutation tests:
+dotnet stryker
+
+-Run the mutation tests only with files changed:
+dotnet stryker --diff
