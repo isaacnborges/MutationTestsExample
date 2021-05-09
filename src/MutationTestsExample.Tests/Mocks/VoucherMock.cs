@@ -7,14 +7,14 @@ namespace MutationTestsExample.Tests.Mocks
 {
     public static class VoucherMock
     {
-        public static Voucher GetFaker(TipoDescontoVoucher tipoDesconto, bool ativo = true)
+        public static Voucher GetFaker(DicountType dicountType, bool active = true)
         {
             return new Faker<Voucher>()
                 .CustomInstantiator(x => new Voucher(
-                    tipoDesconto,
+                    dicountType,
                     DateTime.Today.AddDays(5),
                     x.Random.Int(1, 10),
-                    ativo));
+                    active));
         }
     }
 }

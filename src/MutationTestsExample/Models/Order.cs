@@ -8,11 +8,11 @@ namespace MutationTestsExample.Models
     public class Order
     {
         public Guid Id { get; private set; }
-        public PedidoStatus Status { get; private set; }
-        public Guid ClienteId { get; private set; }
-        public bool VoucherUtilizado { get; private set; }
-        public decimal Desconto { get; private set; }
-        public decimal ValorTotal { get; private set; }
+        public OrderStatus Status { get; private set; }
+        public Guid CustomerId { get; private set; }
+        public decimal Discount { get; private set; }
+        public decimal Total { get; private set; }
+        public bool UsedVoucher { get; private set; }
         public virtual Voucher Voucher { get; private set; }
         public IReadOnlyCollection<OrderItem> Items => _items;
         private readonly List<OrderItem> _items;
@@ -20,131 +20,131 @@ namespace MutationTestsExample.Models
         public Order(Guid clienteId, List<OrderItem> items)
         {
             Id = Guid.NewGuid();
-            ClienteId = clienteId;
+            CustomerId = clienteId;
             _items = items;
 
-            TornarRascunho();
-            CalcularValorPedido();
+            MakeSketch();
+            CalculateTotalOrder();
         }
 
-        public void CalcularValorPedido()
+        public void CalculateTotalOrder()
         {
-            ValorTotal = Items.Sum(p => p.CalcularValor());
-            CalcularValorTotalDesconto();
+            Total = Items.Sum(p => p.CalculateValue());
+            CalculateTotalOrderWithDiscount();
         }
 
-        public void AplicarVoucher(Voucher voucher)
+        public void ApplyVoucher(Voucher voucher)
         {
-            if (voucher.ValidarSeAplicavel())
+            if (voucher.Validate())
             {
                 Voucher = voucher;
-                VoucherUtilizado = true;
-                CalcularValorPedido();
+                UsedVoucher = true;
+                CalculateTotalOrder();
             }
         }
 
-        public void CalcularValorTotalDesconto()
+        public void CalculateTotalOrderWithDiscount()
         {
-            if (!VoucherUtilizado)
+            if (!UsedVoucher)
                 return;
 
-            decimal desconto = 0;
-            var valor = ValorTotal;
+            decimal discount = 0;
+            var total = Total;
 
-            if (Voucher.TipoDescontoVoucher == TipoDescontoVoucher.Porcentagem)
+            if (Voucher.DicountType == DicountType.Percent)
             {
-                if (Voucher.Percentual.HasValue)
+                if (Voucher.Percent.HasValue)
                 {
-                    desconto = valor * Voucher.Percentual.Value / 100;
-                    valor -= desconto;
+                    discount = total * Voucher.Percent.Value / 100;
+                    total -= discount;
                 }
             }
             else
             {
-                if (Voucher.ValorDesconto.HasValue)
+                if (Voucher.DicountAmount.HasValue)
                 {
-                    desconto = Voucher.ValorDesconto.Value;
-                    valor -= desconto;
+                    discount = Voucher.DicountAmount.Value;
+                    total -= discount;
                 }
             }
 
-            if (valor <= 0)
-                throw new Exception("Pedido com valor inválido");
+            if (total <= 0)
+                throw new Exception("Order with invalid value");
 
-            ValorTotal = valor;
-            Desconto = desconto;
+            Total = total;
+            Discount = discount;
         }
 
-        public bool PedidoItemExistente(OrderItem item) => _items.Any(p => p.ProdutoId == item.ProdutoId);
+        public bool OrderItemExists(OrderItem item) => _items.Any(p => p.ProductId == item.ProductId);
 
-        public void AdicionarItem(OrderItem item)
+        public void AddItem(OrderItem item)
         {
-            item.AssociarPedido(Id);
+            item.SetOrder(Id);
 
-            if (PedidoItemExistente(item))
+            if (OrderItemExists(item))
             {
-                var itemExistente = _items.FirstOrDefault(p => p.ProdutoId == item.ProdutoId);
-                itemExistente.AdicionarUnidades(item.Quantidade);
-                item = itemExistente;
+                var itemExists = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
+                itemExists.AddUnits(item.Quantity);
+                item = itemExists;
 
-                _items.Remove(itemExistente);
+                _items.Remove(itemExists);
             }
 
-            item.CalcularValor();
+            item.CalculateValue();
             _items.Add(item);
 
-            CalcularValorPedido();
+            CalculateTotalOrder();
         }
 
-        public void AtualizarItem(OrderItem item)
+        public void UpdateItem(OrderItem item)
         {
-            item.AssociarPedido(Id);
+            item.SetOrder(Id);
 
-            var itemExistente = Items.FirstOrDefault(p => p.ProdutoId == item.ProdutoId);
+            var itemExistente = Items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-            //VerificarItemExistente(itemExistente);
+            ValidateExistItem(itemExistente);
 
             _items.Remove(itemExistente);
             _items.Add(item);
 
-            CalcularValorPedido();
+            CalculateTotalOrder();
         }
 
-        public void RemoverItem(OrderItem item)
+        public void RemoveItem(OrderItem item)
         {
-            var itemExistente = _items.FirstOrDefault(p => p.ProdutoId == item.ProdutoId);
+            var itemExistente = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-            //VerificarItemExistente(itemExistente);
+            ValidateExistItem(itemExistente);
 
             _items.Remove(itemExistente);
 
-            CalcularValorPedido();
+            CalculateTotalOrder();
         }
 
-        //private void VerificarItemExistente(OrderItem itemExistente)
-        //{
-        //    if (itemExistente == null)
-        //        throw new NullReferenceException("O item não pertence ao pedido");
-        //}
-
-        private void TornarRascunho()
+        private void ValidateExistItem(OrderItem itemExistente)
         {
-            Status = PedidoStatus.Rascunho;
+            if (itemExistente == null)
+                throw new NullReferenceException("The item doesn't belong to order");
         }
 
-        public void IniciarPedido()
+        private void MakeSketch()
         {
-            Status = PedidoStatus.Iniciado;
+            Status = OrderStatus.Sketch;
         }
 
-        public void FinalizarPedido()
+        public void StartOrder()
         {
-            Status = PedidoStatus.Pago;
+            Status = OrderStatus.Initiated;
         }
 
-        public void CancelarPedido()
+        public void FinalizeOrder()
         {
-            Status = PedidoStatus.Cancelado;
+            Status = OrderStatus.Paid;
+        }
+
+        public void CancelOrder()
+        {
+            Status = OrderStatus.Canceled;
         }
     }
 }

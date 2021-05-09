@@ -5,27 +5,27 @@ namespace MutationTestsExample.Models
     public class OrderItem
     {
         public Guid Id { get; private set; }
-        public Guid PedidoId { get; set; }
-        public Guid ProdutoId { get; set; }
-        public string ProdutoNome { get; set; }
-        public int Quantidade { get; set; }
-        public decimal ValorUnitario { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; }
+        public int Quantity { get; set; }
+        public decimal UnitaryValue { get; set; }
 
-        public OrderItem(Guid produtoId, string produtoNome, int quantidade, decimal valorUnitario)
+        public OrderItem(Guid productId, string productName, int quantity, decimal unitaryValue)
         {
             Id = Guid.NewGuid();
-            ProdutoId = produtoId;
-            ProdutoNome = produtoNome;
-            Quantidade = quantidade;
-            ValorUnitario = valorUnitario;
+            ProductId = productId;
+            ProductName = productName;
+            Quantity = quantity;
+            UnitaryValue = unitaryValue;
         }
 
-        public decimal CalcularValor() => Quantidade * ValorUnitario;
+        public decimal CalculateValue() => Quantity * UnitaryValue;
 
-        public void AssociarPedido(Guid pedidoId) => PedidoId = pedidoId;
+        public void SetOrder(Guid orderId) => OrderId = orderId;
 
-        public void AdicionarUnidades(int unidades) => Quantidade += unidades;
+        public void AddUnits(int units) => Quantity += units;
 
-        public void AtualizarUnidades(int unidades) => Quantidade = unidades;
+        public void UpdateUnits(int units) => Quantity = units;
     }
 }

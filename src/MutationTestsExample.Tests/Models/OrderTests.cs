@@ -10,239 +10,239 @@ namespace MutationTestsExample.Tests.Models
 {
     public class OrderTests
     {
-        [Fact(DisplayName = "Deve criar pedido")]
-        public void Deve_criar_pedido()
+        [Fact(DisplayName = "Should create an order")]
+        public void ShouldCreateOrder()
         {
             // Arrange
-            var clienteId = Guid.NewGuid();
+            var customerId = Guid.NewGuid();
             var itemsQuantity = 2;
             var items = OrderItemMock.GetListFaker(itemsQuantity);
-            var expectedTotal = items.Sum(i => i.Quantidade * i.ValorUnitario);
+            var expectedTotal = items.Sum(i => i.Quantity * i.UnitaryValue);
 
             // Act
-            var order = new Order(clienteId, items.ToList());
+            var order = new Order(customerId, items.ToList());
 
             // Assert
-            order.Status.Should().Be(PedidoStatus.Rascunho);
+            order.Status.Should().Be(OrderStatus.Sketch);
             order.Items.Should().HaveCount(itemsQuantity);
-            order.ValorTotal.Should().Be(expectedTotal);
+            order.Total.Should().Be(expectedTotal);
         }
 
-        [Fact(DisplayName = "Deve permitir adicionar item existente")]
-        public void Deve_permitir_adicionar_item_existente()
+        [Fact(DisplayName = "Should allow add exist item")]
+        public void ShouldAllowAddExistItem()
         {
             // Arrange
             var order = OrderMock.GetFaker(2);
             var orderItem = OrderItemMock.GetFaker();
-            orderItem.ProdutoId = order.Items.FirstOrDefault().ProdutoId;
+            orderItem.ProductId = order.Items.FirstOrDefault().ProductId;
 
             // Act
-            var result = order.PedidoItemExistente(orderItem);
+            var result = order.OrderItemExists(orderItem);
 
             // Assert
             result.Should().BeTrue();
         }
 
-        [Fact(DisplayName = "Deve validar se item existente")]
-        public void Deve_validar_se_item_existente()
+        [Fact(DisplayName = "Should validate if item exists")]
+        public void ShouldValidateIfItemExists()
         {
             // Arrange
             var order = OrderMock.GetFaker(2);
             var orderItem = OrderItemMock.GetFaker();
 
             // Act
-            var result = order.PedidoItemExistente(orderItem);
+            var result = order.OrderItemExists(orderItem);
 
             // Assert
             result.Should().BeFalse();
         }
 
-        [Fact(DisplayName = "Deve calcular valor total pedido")]
-        public void Deve_calcular_valor_total_pedido()
+        [Fact(DisplayName = "Should calculate order total value")]
+        public void ShouldCalculateOrderTotalValue()
         {
             // Arrange
             var order = OrderMock.GetFaker(2);
-            var expectedTotal = order.Items.Sum(i => i.Quantidade * i.ValorUnitario);
+            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
 
             // Act
-            order.CalcularValorPedido();
+            order.CalculateTotalOrder();
 
             // Assert
-            order.ValorTotal.Should().Be(expectedTotal);
+            order.Total.Should().Be(expectedTotal);
         }
 
-        [Fact(DisplayName = "Deve retornar pedido com valor zerado aplicando desconto maior do que a soma dos itens")]
-        public void Deve_retornar_pedido_com_valor_zerado_aplicando_desconto_maior_do_que_a_soma_dos_itens()
+        [Fact(DisplayName = "Should return an order with zero value applying a higher discount that sum of items")]
+        public void ShouldReturnOrderWithZeroValueApplyingHigherDiscountThatSumOfItems()
         {
             // Arrange            
             var order = OrderMock.GetFaker(2);
-            var totalItems = order.Items.Sum(i => i.Quantidade * i.ValorUnitario);
-            var valorDesconto = totalItems + 10;
-            var voucher = VoucherMock.GetFaker(TipoDescontoVoucher.Valor);
-            voucher.ValorDesconto = valorDesconto;
+            var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
+            var dicountAmount = totalItems + 10;
+            var voucher = VoucherMock.GetFaker(DicountType.Value);
+            voucher.DicountAmount = dicountAmount;
 
             // Act
-            Action action = () => order.AplicarVoucher(voucher);
+            Action action = () => order.ApplyVoucher(voucher);
 
             // Assert            
-            action.Should().Throw<Exception>().WithMessage("Pedido com valor inválido");
+            action.Should().Throw<Exception>().WithMessage("Order with invalid value");
         }
 
-        [Fact(DisplayName = "Deve aplicar voucher valor")]
-        public void Deve_aplicar_voucher_valor()
+        [Fact(DisplayName = "Should apply a value voucher")]
+        public void ShouldApplyValueVoucher()
         {
             // Arrange
             var valorDesconto = 10;
             var order = OrderMock.GetFaker(2);
-            var expectedTotal = order.Items.Sum(i => i.Quantidade * i.ValorUnitario) - valorDesconto;
-            var voucher = VoucherMock.GetFaker(TipoDescontoVoucher.Valor);
-            voucher.ValorDesconto = valorDesconto;
+            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) - valorDesconto;
+            var voucher = VoucherMock.GetFaker(DicountType.Value);
+            voucher.DicountAmount = valorDesconto;
 
             // Act
-            order.AplicarVoucher(voucher);
+            order.ApplyVoucher(voucher);
 
             // Assert
             order.Voucher.Should().NotBeNull();
-            order.Voucher.ValorDesconto.Value.Should().Be(valorDesconto);
-            order.VoucherUtilizado.Should().BeTrue();
-            order.Desconto.Should().Be(valorDesconto);
-            order.ValorTotal.Should().Be(expectedTotal);
+            order.Voucher.DicountAmount.Value.Should().Be(valorDesconto);
+            order.UsedVoucher.Should().BeTrue();
+            order.Discount.Should().Be(valorDesconto);
+            order.Total.Should().Be(expectedTotal);
         }
 
-        [Fact(DisplayName = "Deve aplicar voucher percentual")]
-        public void Deve_aplicar_voucher_percentual()
+        [Fact(DisplayName = "Should apply a percent voucher")]
+        public void ShouldAppplyPercentVoucher()
         {
             // Arrange
-            var percentualDesconto = 10;
+            var percent = 10;
             var order = OrderMock.GetFaker(2);
-            var expectedDesconto = order.ValorTotal * percentualDesconto / 100;
-            var expectedTotal = order.Items.Sum(i => i.Quantidade * i.ValorUnitario) - expectedDesconto;
-            var voucher = VoucherMock.GetFaker(TipoDescontoVoucher.Porcentagem);
-            voucher.Percentual = percentualDesconto;
+            var expectedDesconto = order.Total * percent / 100;
+            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) - expectedDesconto;
+            var voucher = VoucherMock.GetFaker(DicountType.Percent);
+            voucher.Percent = percent;
 
             // Act
-            order.AplicarVoucher(voucher);
+            order.ApplyVoucher(voucher);
 
             // Assert
             order.Voucher.Should().NotBeNull();
-            order.Voucher.Percentual.Value.Should().Be(percentualDesconto);
-            order.VoucherUtilizado.Should().BeTrue();
-            order.Desconto.Should().Be(expectedDesconto);
-            order.ValorTotal.Should().Be(expectedTotal);
+            order.Voucher.Percent.Value.Should().Be(percent);
+            order.UsedVoucher.Should().BeTrue();
+            order.Discount.Should().Be(expectedDesconto);
+            order.Total.Should().Be(expectedTotal);
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------------
-        //[Fact(DisplayName = "Deve retornar pedido com valor zerado aplicando desconto igual a soma dos itens")]
-        //public void Deve_validar_pedido_zerado2()
-        //{
-        //    // Arrange            
-        //    var order = OrderMock.GetFaker(2);
-        //    var totalItems = order.Items.Sum(i => i.Quantidade * i.ValorUnitario);
-        //    var valorDesconto = totalItems;
-        //    var voucher = VoucherMock.GetFaker(TipoDescontoVoucher.Valor);
-        //    voucher.ValorDesconto = valorDesconto;
+        [Fact(DisplayName = "Should return an order with zero value applying a equal discount that sum of items")]
+        public void ShouldReturnOrderWithZeroValueApplyingEqualDiscountThatSumOfItems()
+        {
+            // Arrange            
+            var order = OrderMock.GetFaker(2);
+            var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
+            var valorDesconto = totalItems;
+            var voucher = VoucherMock.GetFaker(DicountType.Value);
+            voucher.DicountAmount = valorDesconto;
 
-        //    // Act
-        //    Action action = () => order.AplicarVoucher(voucher);
+            // Act
+            Action action = () => order.ApplyVoucher(voucher);
 
-        //    // Assert            
-        //    action.Should().Throw<Exception>().WithMessage("Pedido com valor inválido");
-        //}
+            // Assert            
+            action.Should().Throw<Exception>().WithMessage("Order with invalid value");
+        }
 
-        //[Fact(DisplayName = "Deve gerar exception ao atualizar item inexistente")]
-        //public void Deve_gerar_exception_ao_atualizar_item_inexistente()
-        //{
-        //    // Arrange
-        //    var itemsQuantity = 3;
-        //    var order = OrderMock.GetFaker(itemsQuantity);
-        //    var item = OrderItemMock.GetFaker();
+        [Fact(DisplayName = "Should throw an exception on update exist item")]
+        public void ShouldThrowExceptionOnUpdateExistItem()
+        {
+            // Arrange
+            var itemsQuantity = 3;
+            var order = OrderMock.GetFaker(itemsQuantity);
+            var item = OrderItemMock.GetFaker();
 
-        //    // Act
-        //    Action action = () => order.AtualizarItem(item);
+            // Act
+            Action action = () => order.UpdateItem(item);
 
-        //    // Assert            
-        //    action.Should().Throw<NullReferenceException>().WithMessage("O item não pertence ao pedido");
-        //}
+            // Assert
+            action.Should().Throw<NullReferenceException>().WithMessage("The item doesn't belong to order");
+        }
 
-        //[Fact(DisplayName = "Deve gerar exception ao remover item inexistente")]
-        //public void Deve_gerar_exception_ao_remover_item_inexistente()
-        //{
-        //    // Arrange
-        //    var itemsQuantity = 3;
-        //    var order = OrderMock.GetFaker(itemsQuantity);
-        //    var item = OrderItemMock.GetFaker();
+        [Fact(DisplayName = "Should throw an exception on remove exist item")]
+        public void ShouldThrowExceptionOnRemoveExistItem()
+        {
+            // Arrange
+            var itemsQuantity = 3;
+            var order = OrderMock.GetFaker(itemsQuantity);
+            var item = OrderItemMock.GetFaker();
 
-        //    // Act
-        //    Action action = () => order.RemoverItem(item);
+            // Act
+            Action action = () => order.RemoveItem(item);
 
-        //    // Assert            
-        //    action.Should().Throw<NullReferenceException>().WithMessage("O item não pertence ao pedido");
-        //}
+            // Assert
+            action.Should().Throw<NullReferenceException>().WithMessage("The item doesn't belong to order");
+        }
         //--------------------------------------------------------------------------------------------------------------------------------------------
 
 
-        [Fact(DisplayName = "Deve adicionar item ao pedido")]
-        public void Deve_adicionar_item_ao_pedido()
+        [Fact(DisplayName = "Should add item to the order")]
+        public void ShouldAddItemToTheOrder()
         {
             // Arrange
             var expectedItems = 4;
             var itemsQuantity = 3;
             var order = OrderMock.GetFaker(itemsQuantity);
             var item = OrderItemMock.GetFaker();
-            var expectedTotal = order.Items.Sum(i => i.Quantidade * i.ValorUnitario) + item.Quantidade * item.ValorUnitario;
+            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) + item.Quantity * item.UnitaryValue;
 
             // Act
-            order.AdicionarItem(item);
+            order.AddItem(item);
 
             // Assert
             order.Items.Should().HaveCount(expectedItems);
-            order.ValorTotal.Should().Be(expectedTotal);
-            item.PedidoId.Should().Be(order.Id);
+            order.Total.Should().Be(expectedTotal);
+            item.OrderId.Should().Be(order.Id);
         }
 
-        [Fact(DisplayName = "Deve adicionar item existente ao pedido")]
-        public void Deve_adicionar_item_existente_ao_pedido()
+        [Fact(DisplayName = "Should add exist item to the order")]
+        public void ShouldAddExistItemToTheOrder()
         {
             // Arrange
             var itemsQuantity = 3;
             var order = OrderMock.GetFaker(itemsQuantity);
             var newItem = OrderItemMock.GetFaker();
             var itemExistente = order.Items.LastOrDefault();
-            newItem.ProdutoId = itemExistente.ProdutoId;
+            newItem.ProductId = itemExistente.ProductId;
 
-            var itemExistenteTotal = (itemExistente.Quantidade + newItem.Quantidade) * itemExistente.ValorUnitario;
-            var expectedTotal = order.Items.Where(x => !x.ProdutoId.Equals(newItem.ProdutoId)).Sum(i => i.Quantidade * i.ValorUnitario) + itemExistenteTotal;
+            var itemExistenteTotal = (itemExistente.Quantity + newItem.Quantity) * itemExistente.UnitaryValue;
+            var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(newItem.ProductId)).Sum(i => i.Quantity * i.UnitaryValue) + itemExistenteTotal;
 
             // Act
-            order.AdicionarItem(newItem);
+            order.AddItem(newItem);
 
             // Assert
             order.Items.Should().HaveCount(itemsQuantity);
-            order.ValorTotal.Should().Be(expectedTotal);
-            newItem.PedidoId.Should().Be(order.Id);
+            order.Total.Should().Be(expectedTotal);
+            newItem.OrderId.Should().Be(order.Id);
         }
 
-        [Fact(DisplayName = "Deve atualizar item ao pedido")]
-        public void Deve_atualizar_item_ao_pedido()
+        [Fact(DisplayName = "Should update item to the order")]
+        public void ShouldUpdateItemToTheOrder()
         {
             // Arrange
             var itemsQuantity = 3;
             var order = OrderMock.GetFaker(itemsQuantity);
             var item = OrderItemMock.GetFaker();
-            item.ProdutoId = order.Items.LastOrDefault().ProdutoId;
+            item.ProductId = order.Items.LastOrDefault().ProductId;
 
-            var expectedTotal = order.Items.Where(x => !x.ProdutoId.Equals(item.ProdutoId)).Sum(i => i.Quantidade * i.ValorUnitario) + item.Quantidade * item.ValorUnitario;
+            var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(item.ProductId)).Sum(i => i.Quantity * i.UnitaryValue) + item.Quantity * item.UnitaryValue;
 
             // Act
-            order.AtualizarItem(item);
+            order.UpdateItem(item);
 
             // Assert
             order.Items.Should().HaveCount(itemsQuantity);
-            order.ValorTotal.Should().Be(expectedTotal);
+            order.Total.Should().Be(expectedTotal);
         }
 
-        [Fact(DisplayName = "Deve remover item ao pedido")]
-        public void Deve_remover_item_ao_pedido()
+        [Fact(DisplayName = "Should remove item to the order")]
+        public void ShouldRemoveItemToTheOrder()
         {
             // Arrange
             var expectedItems = 2;
@@ -250,55 +250,55 @@ namespace MutationTestsExample.Tests.Models
             var order = OrderMock.GetFaker(itemsQuantity);
 
             var item = OrderItemMock.GetFaker();
-            item.ProdutoId = order.Items.LastOrDefault().ProdutoId;
+            item.ProductId = order.Items.LastOrDefault().ProductId;
 
-            var expectedTotal = order.Items.Where(x => !x.ProdutoId.Equals(item.ProdutoId)).Sum(i => i.Quantidade * i.ValorUnitario);
+            var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(item.ProductId)).Sum(i => i.Quantity * i.UnitaryValue);
 
             // Act
-            order.RemoverItem(item);
+            order.RemoveItem(item);
 
             // Assert
             order.Items.Should().HaveCount(expectedItems);
-            order.ValorTotal.Should().Be(expectedTotal);
+            order.Total.Should().Be(expectedTotal);
         }
 
-        [Fact(DisplayName = "Deve_iniciar_pedido")]
-        public void Deve_iniciar_pedido()
+        [Fact(DisplayName = "Should start order")]
+        public void ShouldStartOrder()
         {
             // Arrange
             var order = OrderMock.GetFaker();
 
             // Act
-            order.IniciarPedido();
+            order.StartOrder();
 
             // Assert
-            order.Status.Should().Be(PedidoStatus.Iniciado);
+            order.Status.Should().Be(OrderStatus.Initiated);
         }
 
-        [Fact(DisplayName = "Deve finalizar pedido")]
-        public void Deve_finalizar_pedido()
+        [Fact(DisplayName = "Should finalize order")]
+        public void ShouldFinalizeOrder()
         {
             // Arrange
             var order = OrderMock.GetFaker();
 
             // Act
-            order.FinalizarPedido();
+            order.FinalizeOrder();
 
             // Assert
-            order.Status.Should().Be(PedidoStatus.Pago);
+            order.Status.Should().Be(OrderStatus.Paid);
         }
 
-        [Fact(DisplayName = "Deve cancelar pedido")]
-        public void Deve_cancelar_pedido()
+        [Fact(DisplayName = "Should cancel order")]
+        public void ShouldCancelOrder()
         {
             // Arrange
             var order = OrderMock.GetFaker();
 
             // Act
-            order.CancelarPedido();
+            order.CancelOrder();
 
             // Assert
-            order.Status.Should().Be(PedidoStatus.Cancelado);
+            order.Status.Should().Be(OrderStatus.Canceled);
         }
     }
 }

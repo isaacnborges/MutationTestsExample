@@ -6,31 +6,31 @@ namespace MutationTestsExample.Models
     public class Voucher
     {
         public Guid Id { get; private set; }
-        public decimal? Percentual { get; set; }
-        public decimal? ValorDesconto { get; set; }
-        public int Quantidade { get; set; }
-        public TipoDescontoVoucher TipoDescontoVoucher { get; set; }
-        public DateTime DataValidade { get; set; }
-        public bool Ativo { get; set; }
+        public decimal? Percent { get; set; }
+        public decimal? DicountAmount { get; set; }
+        public int Quantity { get; set; }
+        public DicountType DicountType { get; set; }
+        public DateTime ExpirationDate { get; set; }
+        public bool Active { get; set; }
 
-        public Voucher(TipoDescontoVoucher tipoDesconto, DateTime dataValidade, int quantidade, bool ativo)
+        public Voucher(DicountType dicountType, DateTime expirationDate, int quantity, bool active)
         {
             Id = Guid.NewGuid();
-            TipoDescontoVoucher = tipoDesconto;
-            DataValidade = dataValidade;
-            Quantidade = quantidade;
-            Ativo = ativo;
+            DicountType = dicountType;
+            ExpirationDate = expirationDate;
+            Quantity = quantity;
+            Active = active;
         }
 
-        public bool ValidarSeAplicavel()
+        public bool Validate()
         {
-            if (DataValidade <= DateTime.Today)
+            if (ExpirationDate <= DateTime.Today)
                 return false;
 
-            if (!Ativo)
+            if (!Active)
                 return false;
 
-            if (Quantidade <= 0)
+            if (Quantity <= 0)
                 return false;
 
             return true;

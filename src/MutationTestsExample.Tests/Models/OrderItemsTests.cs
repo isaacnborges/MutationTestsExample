@@ -8,61 +8,61 @@ namespace MutationTestsExample.Tests.Models
 {
     public class OrderItemsTests
     {
-        [Fact(DisplayName = "Deve calcular valor ordem item")]
-        public void Deve_calcular_valor_ordem_item()
+        [Fact(DisplayName = "Should calculate order item value")]
+        public void ShouldCalculateOrderItemValue()
         {
             // Arrange
             var expectedResult = 30;
-            var orderItem = new OrderItem(Guid.NewGuid(), "cimento", 2, 15);
+            var orderItem = new OrderItem(Guid.NewGuid(), "new product", 2, 15);
 
             // Act
-            var result = orderItem.CalcularValor();
+            var result = orderItem.CalculateValue();
 
             // Assert
             result.Should().Be(expectedResult);
         }
 
-        [Fact(DisplayName = "Deve associar pedido")]
-        public void Deve_Teste()
+        [Fact(DisplayName = "Should set order")]
+        public void Should_set_order()
         {
             // Arrange
-            var pedidoId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
             var orderItem = OrderItemMock.GetFaker();
 
             // Act
-            orderItem.AssociarPedido(pedidoId);
+            orderItem.SetOrder(orderId);
 
             // Assert
-            orderItem.PedidoId.Should().Be(pedidoId);
+            orderItem.OrderId.Should().Be(orderId);
         }
 
-        [Fact(DisplayName = "Deve adicionar unidades")]
-        public void Deve_Teste1()
+        [Fact(DisplayName = "Should add units")]
+        public void ShouldAddUnits()
         {
             // Arrange
-            var unidades = new Random().Next(10);
+            var units = new Random().Next(10);
             var orderItem = OrderItemMock.GetFaker();
-            var expectedResult = orderItem.Quantidade + unidades;
+            var expectedResult = orderItem.Quantity + units;
 
             // Act
-            orderItem.AdicionarUnidades(unidades);
+            orderItem.AddUnits(units);
 
             // Assert
-            orderItem.Quantidade.Should().Be(expectedResult);
+            orderItem.Quantity.Should().Be(expectedResult);
         }
 
-        [Fact(DisplayName = "Deve atualizar unidades")]
-        public void Deve_Teste2()
+        [Fact(DisplayName = "Should update units")]
+        public void ShouldUpdateUnits()
         {
             // Arrange
-            var unidades = new Random().Next(10);
+            var units = new Random().Next(10);
             var orderItem = OrderItemMock.GetFaker();
 
             // Act
-            orderItem.AtualizarUnidades(unidades);
+            orderItem.UpdateUnits(units);
 
             // Assert
-            orderItem.Quantidade.Should().Be(unidades);
+            orderItem.Quantity.Should().Be(units);
         }
     }
 }
