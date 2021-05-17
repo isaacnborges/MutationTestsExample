@@ -84,6 +84,7 @@ namespace MutationTestsExample.Models
             if (OrderItemExists(item))
             {
                 var itemExists = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
+
                 itemExists.AddUnits(item.Quantity);
                 item = itemExists;
 
@@ -100,11 +101,11 @@ namespace MutationTestsExample.Models
         {
             item.SetOrder(Id);
 
-            var itemExistente = Items.FirstOrDefault(p => p.ProductId == item.ProductId);
+            var existItem = Items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-            ValidateExistItem(itemExistente);
+            ValidateExistItem(existItem);
 
-            _items.Remove(itemExistente);
+            _items.Remove(existItem);
             _items.Add(item);
 
             CalculateTotalOrder();
@@ -112,11 +113,11 @@ namespace MutationTestsExample.Models
 
         public void RemoveItem(OrderItem item)
         {
-            var itemExistente = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
+            var existItem = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-            ValidateExistItem(itemExistente);
+            ValidateExistItem(existItem);
 
-            _items.Remove(itemExistente);
+            _items.Remove(existItem);
 
             CalculateTotalOrder();
         }
