@@ -33,13 +33,19 @@ Go to the tests folder location:
 cd <repository location>\MutationTestsExample\src\MutationTestsExample.Tests
 ```
 
+Install Stryker .NET globally:
+
+```
+dotnet tool install -g dotnet-stryker
+```
+
 Run the mutation tests:
 
 ```
 dotnet stryker
 ```
 
-Run the mutation tests:
+Run the mutation tests only with different file:
 
 ```
 dotnet stryker --diff
