@@ -48,41 +48,11 @@ namespace MutationTestsExample.Tests.Models
             result.Should().BeFalse();
         }
 
-        [Fact(DisplayName = "Should validate an inactive voucher with yesterday date")]
-        public void ShouldValidateInactiveVoucherWithYesterdayDate()
-        {
-            // Arrange
-            var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(-1), 3, false);
-
-            // Act
-            var result = voucher.Validate();
-
-            // Assert
-            result.Should().BeFalse();
-        }
-
-        [Theory(DisplayName = "Should validate a voucher with invalid quantity with yesterday date")]
-        [InlineData(0)]
-        [InlineData(-1)]
-        [InlineData(-10)]
-        public void ShouldValidateVoucherWithInvalidQuantityWithYesterdayDate(int quantity)
-        {
-            // Arrange
-            var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(-1), quantity, true);
-
-            // Act
-            var result = voucher.Validate();
-
-            // Assert
-            result.Should().BeFalse();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------------------------------------
         [Fact(DisplayName = "Should validate an inactive voucher")]
         public void ShouldValidateInactiveVoucher()
         {
             // Arrange
-            var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(1), 3, false);
+            var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(-1), 3, false);
 
             // Act
             var result = voucher.Validate();
@@ -98,7 +68,7 @@ namespace MutationTestsExample.Tests.Models
         public void ShouldValidateVoucherWithInvalidQuantity(int quantity)
         {
             // Arrange
-            var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(1), quantity, true);
+            var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(-1), quantity, true);
 
             // Act
             var result = voucher.Validate();
@@ -106,6 +76,5 @@ namespace MutationTestsExample.Tests.Models
             // Assert
             result.Should().BeFalse();
         }
-        //--------------------------------------------------------------------------------------------------------------------------------------------
     }
 }

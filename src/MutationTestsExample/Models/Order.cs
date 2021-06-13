@@ -103,8 +103,6 @@ namespace MutationTestsExample.Models
 
             var existItem = Items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-            ValidateExistItem(existItem);
-
             _items.Remove(existItem);
             _items.Add(item);
 
@@ -115,17 +113,9 @@ namespace MutationTestsExample.Models
         {
             var existItem = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-            ValidateExistItem(existItem);
-
             _items.Remove(existItem);
 
             CalculateTotalOrder();
-        }
-
-        private void ValidateExistItem(OrderItem itemExistente)
-        {
-            if (itemExistente == null)
-                throw new NullReferenceException("The item doesn't belong to order");
         }
 
         private void MakeSketch()

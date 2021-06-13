@@ -14,8 +14,7 @@
     "ignore-methods": [
       "*Log*",
       "*ToString*",
-      "*HashCode*",
-      "*FirstOrDefault*"
+      "*HashCode*"
     ]
   }
 }
