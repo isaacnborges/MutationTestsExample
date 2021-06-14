@@ -71,23 +71,6 @@ namespace MutationTestsExample.Tests.Models
             order.Total.Should().Be(expectedTotal);
         }
 
-        [Fact(DisplayName = "Should return an order with zero value applying a higher discount that sum of items")]
-        public void ShouldReturnOrderWithZeroValueApplyingHigherDiscountThatSumOfItems()
-        {
-            // Arrange            
-            var order = OrderMock.GetFaker(2);
-            var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
-            var dicountAmount = totalItems + 10;
-            var voucher = VoucherMock.GetFaker(DicountType.Value);
-            voucher.DicountAmount = dicountAmount;
-
-            // Act
-            Action action = () => order.ApplyVoucher(voucher);
-
-            // Assert            
-            action.Should().Throw<Exception>().WithMessage("Order with invalid value");
-        }
-
         [Fact(DisplayName = "Should apply a value voucher")]
         public void ShouldApplyValueVoucher()
         {
@@ -131,6 +114,22 @@ namespace MutationTestsExample.Tests.Models
             order.Total.Should().Be(expectedTotal);
         }
 
+        [Fact(DisplayName = "Should return an order with zero value applying a higher discount that sum of items")]
+        public void ShouldReturnOrderWithZeroValueApplyingHigherDiscountThatSumOfItems()
+        {
+            // Arrange            
+            var order = OrderMock.GetFaker(2);
+            var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
+            var dicountAmount = totalItems + 10;
+            var voucher = VoucherMock.GetFaker(DicountType.Value);
+            voucher.DicountAmount = dicountAmount;
+
+            // Act
+            Action action = () => order.ApplyVoucher(voucher);
+
+            // Assert            
+            action.Should().Throw<Exception>().WithMessage("Order with invalid value");
+        }
         //--------------------------------------------------------------------------------------------------------------------------------------------
 
         //--------------------------------------------------------------------------------------------------------------------------------------------
