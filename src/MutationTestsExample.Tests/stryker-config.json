@@ -13,8 +13,7 @@
     "ignore-methods": [
       "*Log*",
       "*ToString*",
-      "*HashCode*",
-      "*First*"
+      "*HashCode*"
     ]
   }
 }

@@ -102,8 +102,6 @@ public class Order
 
         var existItem = Items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-        ValidateExistItem(existItem);
-
         _items.Remove(existItem);
         _items.Add(item);
 
@@ -114,17 +112,9 @@ public class Order
     {
         var existItem = _items.FirstOrDefault(p => p.ProductId == item.ProductId);
 
-        ValidateExistItem(existItem);
-
         _items.Remove(existItem);
 
         CalculateTotalOrder();
-    }
-
-    private static void ValidateExistItem(OrderItem existItem)
-    {
-        if (existItem == null)
-            throw new NullReferenceException("The item doesn't belong to order");
     }
 
     public void CreateOrder()

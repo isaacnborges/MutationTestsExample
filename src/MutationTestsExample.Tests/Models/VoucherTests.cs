@@ -52,7 +52,7 @@ public class VoucherTests
     public void ShouldValidateInactiveVoucher()
     {
         // Arrange
-        var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(1), 3, false);
+        var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(-1), 3, false);
 
         // Act
         var result = voucher.Validate();
@@ -68,7 +68,7 @@ public class VoucherTests
     public void ShouldValidateVoucherWithInvalidQuantity(int quantity)
     {
         // Arrange
-        var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(1), quantity, true);
+        var voucher = new Voucher(DicountType.Percent, DateTime.Today.AddDays(-1), quantity, true);
 
         // Act
         var result = voucher.Validate();

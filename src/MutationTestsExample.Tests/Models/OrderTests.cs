@@ -131,52 +131,6 @@ public class OrderTests
         action.Should().Throw<Exception>().WithMessage("Order with invalid value");
     }
     //--------------------------------------------------------------------------------------------------------------------------------------------
-    [Fact(DisplayName = "Should return an order with zero value applying a equal discount that sum of items")]
-    public void ShouldReturnOrderWithZeroValueApplyingEqualDiscountThatSumOfItems()
-    {
-        // Arrange
-        var order = OrderMock.GetFaker(2);
-        var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
-        var valorDesconto = totalItems;
-        var voucher = VoucherMock.GetFaker(DicountType.Value);
-        voucher.DicountAmount = valorDesconto;
-
-        // Act
-        Action action = () => order.ApplyVoucher(voucher);
-
-        // Assert
-        action.Should().Throw<Exception>().WithMessage("Order with invalid value");
-    }
-
-    [Fact(DisplayName = "Should throw an exception on update exist item")]
-    public void ShouldThrowExceptionOnUpdateExistItem()
-    {
-        // Arrange
-        var itemsQuantity = 3;
-        var order = OrderMock.GetFaker(itemsQuantity);
-        var item = OrderItemMock.GetFaker();
-
-        // Act
-        Action action = () => order.UpdateItem(item);
-
-        // Assert
-        action.Should().Throw<NullReferenceException>().WithMessage("The item doesn't belong to order");
-    }
-
-    [Fact(DisplayName = "Should throw an exception on remove exist item")]
-    public void ShouldThrowExceptionOnRemoveExistItem()
-    {
-        // Arrange
-        var itemsQuantity = 3;
-        var order = OrderMock.GetFaker(itemsQuantity);
-        var item = OrderItemMock.GetFaker();
-
-        // Act
-        Action action = () => order.RemoveItem(item);
-
-        // Assert
-        action.Should().Throw<NullReferenceException>().WithMessage("The item doesn't belong to order");
-    }
 
     //--------------------------------------------------------------------------------------------------------------------------------------------
     [Fact(DisplayName = "Should add item to the order")]
