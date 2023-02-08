@@ -61,4 +61,4 @@ Go to the stryker report location:
 cd <repository location>\MutationTestsExample\src\MutationTestsExample.Tests\StrykerOutput\<date run report>\reports\mutation-report.html
 ```
 ### Stryker mutation score report
-![code coversage report](images/stryker-report.png)
+![code coversage report](images/stryker-report.jpg)
