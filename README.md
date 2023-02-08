@@ -52,7 +52,7 @@ dotnet-stryker --diff
 ```
 
 ### Stryker .NET running
-![code coversage report](images/dotnet-stryker.png)
+![code coversage report](images/dotnet-stryker.jpg)
 
 
 Go to the stryker report location: 
