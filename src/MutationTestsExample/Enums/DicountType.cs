@@ -1,8 +1,7 @@
-﻿namespace MutationTestsExample.Enums
+﻿namespace MutationTestsExample.Enums;
+
+public enum DicountType
 {
-    public enum DicountType
-    {
-        Percent,
-        Value
-    }
+    Percent,
+    Value
 }

@@ -1,10 +1,9 @@
-﻿namespace MutationTestsExample.Enums
+﻿namespace MutationTestsExample.Enums;
+
+public enum OrderStatus
 {
-    public enum OrderStatus
-    {
-        Sketch,
-        Initiated,
-        Paid,
-        Canceled
-    }
+    Created = 1,
+    Approved,
+    Finalized,
+    Canceled
 }

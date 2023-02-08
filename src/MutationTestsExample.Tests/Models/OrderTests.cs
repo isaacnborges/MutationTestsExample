@@ -6,252 +6,297 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace MutationTestsExample.Tests.Models
+namespace MutationTestsExample.Tests.Models;
+
+public class OrderTests
 {
-    public class OrderTests
+    [Fact(DisplayName = "Should create an order")]
+    public void ShouldCreateOrder()
     {
-        [Fact(DisplayName = "Should create an order")]
-        public void ShouldCreateOrder()
-        {
-            // Arrange
-            var customerId = Guid.NewGuid();
-            var itemsQuantity = 2;
-            var items = OrderItemMock.GetListFaker(itemsQuantity);
-            var expectedTotal = items.Sum(i => i.Quantity * i.UnitaryValue);
+        // Arrange
+        var customerId = Guid.NewGuid();
+        var itemsQuantity = 2;
+        var items = OrderItemMock.GetListFaker(itemsQuantity);
+        var expectedTotal = items.Sum(i => i.Quantity * i.UnitaryValue);
 
-            // Act
-            var order = new Order(customerId, items.ToList());
+        // Act
+        var order = new Order(customerId, items.ToList());
 
-            // Assert
-            order.Status.Should().Be(OrderStatus.Sketch);
-            order.Items.Should().HaveCount(itemsQuantity);
-            order.Total.Should().Be(expectedTotal);
-        }
+        // Assert
+        order.Status.Should().Be(OrderStatus.Created);
+        order.Items.Should().HaveCount(itemsQuantity);
+        order.Total.Should().Be(expectedTotal);
+    }
 
-        [Fact(DisplayName = "Should allow add exist item")]
-        public void ShouldAllowAddExistItem()
-        {
-            // Arrange
-            var order = OrderMock.GetFaker(2);
-            var orderItem = OrderItemMock.GetFaker();
-            orderItem.ProductId = order.Items.FirstOrDefault().ProductId;
+    [Fact(DisplayName = "Should allow add exist item")]
+    public void ShouldAllowAddExistItem()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker(2);
+        var orderItem = OrderItemMock.GetFaker();
+        orderItem.ProductId = order.Items.FirstOrDefault().ProductId;
 
-            // Act
-            var result = order.OrderItemExists(orderItem);
+        // Act
+        var result = order.OrderItemExists(orderItem);
 
-            // Assert
-            result.Should().BeTrue();
-        }
+        // Assert
+        result.Should().BeTrue();
+    }
 
-        [Fact(DisplayName = "Should validate if item exists")]
-        public void ShouldValidateIfItemExists()
-        {
-            // Arrange
-            var order = OrderMock.GetFaker(2);
-            var orderItem = OrderItemMock.GetFaker();
+    [Fact(DisplayName = "Should validate if item exists")]
+    public void ShouldValidateIfItemExists()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker(2);
+        var orderItem = OrderItemMock.GetFaker();
 
-            // Act
-            var result = order.OrderItemExists(orderItem);
+        // Act
+        var result = order.OrderItemExists(orderItem);
 
-            // Assert
-            result.Should().BeFalse();
-        }
+        // Assert
+        result.Should().BeFalse();
+    }
 
-        [Fact(DisplayName = "Should calculate order total value")]
-        public void ShouldCalculateOrderTotalValue()
-        {
-            // Arrange
-            var order = OrderMock.GetFaker(2);
-            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
+    [Fact(DisplayName = "Should calculate order total value")]
+    public void ShouldCalculateOrderTotalValue()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker(2);
+        var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
 
-            // Act
-            order.CalculateTotalOrder();
+        // Act
+        order.CalculateTotalOrder();
 
-            // Assert
-            order.Total.Should().Be(expectedTotal);
-        }
+        // Assert
+        order.Total.Should().Be(expectedTotal);
+    }
 
-        [Fact(DisplayName = "Should apply a value voucher")]
-        public void ShouldApplyValueVoucher()
-        {
-            // Arrange
-            var valorDesconto = 10;
-            var order = OrderMock.GetFaker(2);
-            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) - valorDesconto;
-            var voucher = VoucherMock.GetFaker(DicountType.Value);
-            voucher.DicountAmount = valorDesconto;
+    [Fact(DisplayName = "Should apply a value voucher")]
+    public void ShouldApplyValueVoucher()
+    {
+        // Arrange
+        var valorDesconto = 10;
+        var order = OrderMock.GetFaker(2);
+        var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) - valorDesconto;
+        var voucher = VoucherMock.GetFaker(DicountType.Value);
+        voucher.DicountAmount = valorDesconto;
 
-            // Act
-            order.ApplyVoucher(voucher);
+        // Act
+        order.ApplyVoucher(voucher);
 
-            // Assert
-            order.Voucher.Should().NotBeNull();
-            order.Voucher.DicountAmount.Value.Should().Be(valorDesconto);
-            order.UsedVoucher.Should().BeTrue();
-            order.Discount.Should().Be(valorDesconto);
-            order.Total.Should().Be(expectedTotal);
-        }
+        // Assert
+        order.Voucher.Should().NotBeNull();
+        order.Voucher.DicountAmount.Value.Should().Be(valorDesconto);
+        order.UsedVoucher.Should().BeTrue();
+        order.Discount.Should().Be(valorDesconto);
+        order.Total.Should().Be(expectedTotal);
+    }
 
-        [Fact(DisplayName = "Should apply a percent voucher")]
-        public void ShouldAppplyPercentVoucher()
-        {
-            // Arrange
-            var percent = 10;
-            var order = OrderMock.GetFaker(2);
-            var expectedDesconto = order.Total * percent / 100;
-            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) - expectedDesconto;
-            var voucher = VoucherMock.GetFaker(DicountType.Percent);
-            voucher.Percent = percent;
+    [Fact(DisplayName = "Should apply a percent voucher")]
+    public void ShouldAppplyPercentVoucher()
+    {
+        // Arrange
+        var percent = 10;
+        var order = OrderMock.GetFaker(2);
+        var expectedDesconto = order.Total * percent / 100;
+        var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) - expectedDesconto;
+        var voucher = VoucherMock.GetFaker(DicountType.Percent);
+        voucher.Percent = percent;
 
-            // Act
-            order.ApplyVoucher(voucher);
+        // Act
+        order.ApplyVoucher(voucher);
 
-            // Assert
-            order.Voucher.Should().NotBeNull();
-            order.Voucher.Percent.Value.Should().Be(percent);
-            order.UsedVoucher.Should().BeTrue();
-            order.Discount.Should().Be(expectedDesconto);
-            order.Total.Should().Be(expectedTotal);
-        }
+        // Assert
+        order.Voucher.Should().NotBeNull();
+        order.Voucher.Percent.Value.Should().Be(percent);
+        order.UsedVoucher.Should().BeTrue();
+        order.Discount.Should().Be(expectedDesconto);
+        order.Total.Should().Be(expectedTotal);
+    }
 
-        [Fact(DisplayName = "Should return an order with zero value applying a higher discount that sum of items")]
-        public void ShouldReturnOrderWithZeroValueApplyingHigherDiscountThatSumOfItems()
-        {
-            // Arrange            
-            var order = OrderMock.GetFaker(2);
-            var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
-            var dicountAmount = totalItems + 10;
-            var voucher = VoucherMock.GetFaker(DicountType.Value);
-            voucher.DicountAmount = dicountAmount;
+    [Fact(DisplayName = "Should return an order with zero value applying a higher discount that sum of items")]
+    public void ShouldReturnOrderWithZeroValueApplyingHigherDiscountThatSumOfItems()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker(2);
+        var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
+        var dicountAmount = totalItems + 10;
+        var voucher = VoucherMock.GetFaker(DicountType.Value);
+        voucher.DicountAmount = dicountAmount;
 
-            // Act
-            Action action = () => order.ApplyVoucher(voucher);
+        // Act
+        Action action = () => order.ApplyVoucher(voucher);
 
-            // Assert            
-            action.Should().Throw<Exception>().WithMessage("Order with invalid value");
-        }
-        //--------------------------------------------------------------------------------------------------------------------------------------------
+        // Assert
+        action.Should().Throw<Exception>().WithMessage("Order with invalid value");
+    }
+    //--------------------------------------------------------------------------------------------------------------------------------------------
+    [Fact(DisplayName = "Should return an order with zero value applying a equal discount that sum of items")]
+    public void ShouldReturnOrderWithZeroValueApplyingEqualDiscountThatSumOfItems()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker(2);
+        var totalItems = order.Items.Sum(i => i.Quantity * i.UnitaryValue);
+        var valorDesconto = totalItems;
+        var voucher = VoucherMock.GetFaker(DicountType.Value);
+        voucher.DicountAmount = valorDesconto;
 
-        //--------------------------------------------------------------------------------------------------------------------------------------------
+        // Act
+        Action action = () => order.ApplyVoucher(voucher);
 
-        [Fact(DisplayName = "Should add item to the order")]
-        public void ShouldAddItemToTheOrder()
-        {
-            // Arrange
-            var expectedItems = 4;
-            var itemsQuantity = 3;
-            var order = OrderMock.GetFaker(itemsQuantity);
-            var item = OrderItemMock.GetFaker();
-            var expectedTotal = order.Items.Sum(i => i.Quantity * i.UnitaryValue) + item.Quantity * item.UnitaryValue;
+        // Assert
+        action.Should().Throw<Exception>().WithMessage("Order with invalid value");
+    }
 
-            // Act
-            order.AddItem(item);
+    [Fact(DisplayName = "Should throw an exception on update exist item")]
+    public void ShouldThrowExceptionOnUpdateExistItem()
+    {
+        // Arrange
+        var itemsQuantity = 3;
+        var order = OrderMock.GetFaker(itemsQuantity);
+        var item = OrderItemMock.GetFaker();
 
-            // Assert
-            order.Items.Should().HaveCount(expectedItems);
-            order.Total.Should().Be(expectedTotal);
-            item.OrderId.Should().Be(order.Id);
-        }
+        // Act
+        Action action = () => order.UpdateItem(item);
 
-        [Fact(DisplayName = "Should add exist item to the order")]
-        public void ShouldAddExistItemToTheOrder()
-        {
-            // Arrange
-            var itemsQuantity = 3;
-            var order = OrderMock.GetFaker(itemsQuantity);
-            var newItem = OrderItemMock.GetFaker();
-            var itemExistente = order.Items.LastOrDefault();
-            newItem.ProductId = itemExistente.ProductId;
+        // Assert
+        action.Should().Throw<NullReferenceException>().WithMessage("The item doesn't belong to order");
+    }
 
-            var itemExistenteTotal = (itemExistente.Quantity + newItem.Quantity) * itemExistente.UnitaryValue;
-            var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(newItem.ProductId)).Sum(i => i.Quantity * i.UnitaryValue) + itemExistenteTotal;
+    [Fact(DisplayName = "Should throw an exception on remove exist item")]
+    public void ShouldThrowExceptionOnRemoveExistItem()
+    {
+        // Arrange
+        var itemsQuantity = 3;
+        var order = OrderMock.GetFaker(itemsQuantity);
+        var item = OrderItemMock.GetFaker();
 
-            // Act
-            order.AddItem(newItem);
+        // Act
+        Action action = () => order.RemoveItem(item);
 
-            // Assert
-            order.Items.Should().HaveCount(itemsQuantity);
-            order.Total.Should().Be(expectedTotal);
-            newItem.OrderId.Should().Be(order.Id);
-        }
+        // Assert
+        action.Should().Throw<NullReferenceException>().WithMessage("The item doesn't belong to order");
+    }
 
-        [Fact(DisplayName = "Should update item to the order")]
-        public void ShouldUpdateItemToTheOrder()
-        {
-            // Arrange
-            var itemsQuantity = 3;
-            var order = OrderMock.GetFaker(itemsQuantity);
-            var item = OrderItemMock.GetFaker();
-            item.ProductId = order.Items.LastOrDefault().ProductId;
+    //--------------------------------------------------------------------------------------------------------------------------------------------
+    [Fact(DisplayName = "Should add item to the order")]
+    public void ShouldAddItemToTheOrder()
+    {
+        // Arrange
+        var expectedItems = 4;
+        var itemsQuantity = 3;
+        var order = OrderMock.GetFaker(itemsQuantity);
+        var item = OrderItemMock.GetFaker();
+        var expectedTotal = item.CalculateValue() + order.Total;
 
-            var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(item.ProductId)).Sum(i => i.Quantity * i.UnitaryValue) + item.Quantity * item.UnitaryValue;
+        // Act
+        order.AddItem(item);
 
-            // Act
-            order.UpdateItem(item);
+        // Assert
+        order.Items.Should().HaveCount(expectedItems);
+        order.Total.Should().Be(expectedTotal);
+        item.OrderId.Should().Be(order.Id);
+    }
 
-            // Assert
-            order.Items.Should().HaveCount(itemsQuantity);
-            order.Total.Should().Be(expectedTotal);
-        }
+    [Fact(DisplayName = "Should add exist item to the order")]
+    public void ShouldAddExistItemToTheOrder()
+    {
+        // Arrange
+        var itemsQuantity = 3;
+        var order = OrderMock.GetFaker(itemsQuantity);
+        var newItem = OrderItemMock.GetFaker();
+        var itemExistente = order.Items.LastOrDefault();
+        newItem.ProductId = itemExistente.ProductId;
 
-        [Fact(DisplayName = "Should remove item to the order")]
-        public void ShouldRemoveItemToTheOrder()
-        {
-            // Arrange
-            var expectedItems = 2;
-            var itemsQuantity = 3;
-            var order = OrderMock.GetFaker(itemsQuantity);
+        var itemExistenteTotal = (itemExistente.Quantity + newItem.Quantity) * itemExistente.UnitaryValue;
+        var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(newItem.ProductId)).Sum(i => i.CalculateValue()) + itemExistenteTotal;
 
-            var item = OrderItemMock.GetFaker();
-            item.ProductId = order.Items.LastOrDefault().ProductId;
+        // Act
+        order.AddItem(newItem);
 
-            var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(item.ProductId)).Sum(i => i.Quantity * i.UnitaryValue);
+        // Assert
+        order.Items.Should().HaveCount(itemsQuantity);
+        order.Total.Should().Be(expectedTotal);
+        newItem.OrderId.Should().Be(order.Id);
+    }
 
-            // Act
-            order.RemoveItem(item);
+    [Fact(DisplayName = "Should update item to the order")]
+    public void ShouldUpdateItemToTheOrder()
+    {
+        // Arrange
+        var itemsQuantity = 3;
+        var order = OrderMock.GetFaker(itemsQuantity);
+        var item = OrderItemMock.GetFaker();
+        item.ProductId = order.Items.LastOrDefault().ProductId;
 
-            // Assert
-            order.Items.Should().HaveCount(expectedItems);
-            order.Total.Should().Be(expectedTotal);
-        }
+        var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(item.ProductId)).Sum(i => i.CalculateValue()) + item.CalculateValue();
 
-        [Fact(DisplayName = "Should start order")]
-        public void ShouldStartOrder()
-        {
-            // Arrange
-            var order = OrderMock.GetFaker();
+        // Act
+        order.UpdateItem(item);
 
-            // Act
-            order.StartOrder();
+        // Assert
+        item.OrderId.Should().Be(order.Id);
+        order.Items.Should().HaveCount(itemsQuantity);
+        order.Total.Should().Be(expectedTotal);
+    }
 
-            // Assert
-            order.Status.Should().Be(OrderStatus.Initiated);
-        }
+    [Fact(DisplayName = "Should remove item to the order")]
+    public void ShouldRemoveItemToTheOrder()
+    {
+        // Arrange
+        var expectedItems = 2;
+        var itemsQuantity = 3;
+        var order = OrderMock.GetFaker(itemsQuantity);
 
-        [Fact(DisplayName = "Should finalize order")]
-        public void ShouldFinalizeOrder()
-        {
-            // Arrange
-            var order = OrderMock.GetFaker();
+        var item = OrderItemMock.GetFaker();
+        item.ProductId = order.Items.LastOrDefault().ProductId;
 
-            // Act
-            order.FinalizeOrder();
+        var expectedTotal = order.Items.Where(x => !x.ProductId.Equals(item.ProductId)).Sum(i => i.CalculateValue());
 
-            // Assert
-            order.Status.Should().Be(OrderStatus.Paid);
-        }
+        // Act
+        order.RemoveItem(item);
 
-        [Fact(DisplayName = "Should cancel order")]
-        public void ShouldCancelOrder()
-        {
-            // Arrange
-            var order = OrderMock.GetFaker();
+        // Assert
+        order.Items.Should().HaveCount(expectedItems);
+        order.Total.Should().Be(expectedTotal);
+    }
 
-            // Act
-            order.CancelOrder();
+    [Fact(DisplayName = "Should approve order")]
+    public void ShouldStartOrder()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker();
 
-            // Assert
-            order.Status.Should().Be(OrderStatus.Canceled);
-        }
+        // Act
+        order.ApproveOrder();
+
+        // Assert
+        order.Status.Should().Be(OrderStatus.Approved);
+    }
+
+    [Fact(DisplayName = "Should finalize order")]
+    public void ShouldFinalizeOrder()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker();
+
+        // Act
+        order.FinalizeOrder();
+
+        // Assert
+        order.Status.Should().Be(OrderStatus.Finalized);
+    }
+
+    [Fact(DisplayName = "Should cancel order")]
+    public void ShouldCancelOrder()
+    {
+        // Arrange
+        var order = OrderMock.GetFaker();
+
+        // Act
+        order.CancelOrder();
+
+        // Assert
+        order.Status.Should().Be(OrderStatus.Canceled);
     }
 }

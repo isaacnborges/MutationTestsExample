@@ -23,7 +23,7 @@ reportgenerator "-reports:coverage.cobertura.xml" "-targetdir:coveragereport" -r
 - open index.html file
 
 ### Code coverage report example
-![code coversage report](images/code-coverage.png)
+![code coversage report](images/code-coverage.jpg)
 
 ## Local Run
 
@@ -42,13 +42,13 @@ dotnet tool install -g dotnet-stryker
 Run the mutation tests:
 
 ```
-dotnet stryker
+dotnet-stryker
 ```
 
 Run the mutation tests only with different file:
 
 ```
-dotnet stryker --diff
+dotnet-stryker --diff
 ```
 
 ### Stryker .NET running
