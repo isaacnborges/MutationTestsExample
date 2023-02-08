@@ -6,7 +6,7 @@ To get more information about Stryker, you can view on [official website](https:
 
 ## Project Dependencies 
 
-- [.Net Core 3.1](https://dotnet.microsoft.com/download/dotnet/3.1)
+- [.Net 7](https://dotnet.microsoft.com/download/dotnet/7.0)
 
 ## Generate coverage report
 1. Colect coverage
